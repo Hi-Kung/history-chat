@@ -1,0 +1,8 @@
+.env
+*.env
+.env.local
+__pycache__/
+*.pyc
+.DS_Store
+chat_history.json
+user_profile.txt
