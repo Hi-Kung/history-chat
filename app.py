@@ -95,6 +95,15 @@ with st.sidebar:
         col_b.metric('字符', sum(len(m['content']) for m in st.session_state.messages))
         if turns >= MAX_TURNS:
             st.warning('已达上限，旧消息自动丢弃')
+        
+        st.markdown("---")
+        chat_text = ""
+        if len(st.session_state.messages) > 0:
+            chat_text = "\n".join([(f"【{selected}】:" if m["role"] == "assistant" else "【我】：") + m["content"] for m in st.session_state.messages])
+        file_name = f"与{selected}对话.txt"
+
+        st.download_button("下载聊天记录", data=chat_text, file_name=file_name, mime="text/plain")
+
 
 # ── session_state 初始化 ─────────────────────────────
 if 'messages' not in st.session_state:
