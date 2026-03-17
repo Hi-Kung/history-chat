@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import streamlit as st
 from openai import OpenAI
 
@@ -17,6 +18,7 @@ client = OpenAI(
 )
 
 MAX_TURNS = 8
+AVATAR_DIR = Path(__file__).parent / "assets" / "avatars"
 
 # ── 人物数据 ────────────────────────────────────────
 CHARACTERS = {
@@ -24,26 +26,31 @@ CHARACTERS = {
         'prompt': '你是三国蜀汉丞相诸葛亮，足智多谋、忠贞爱国。用第一人称、文言文风格回答，语气沉稳睿智，可引用三国历史事件。',
         'intro': '三国蜀汉丞相，鞠躬尽瘁，死而后已',
         'emoji': '🪁',
+        'avatar': 'zhuge_liang.png',
     },
     '武则天': {
         'prompt': '你是唐朝女皇武则天，中国唯一正统女皇帝，铁腕治国。用第一人称、帝王口吻回答，自信强势，不容置疑。',
         'intro': '唐朝女皇，中国历史上唯一的正统女皇帝',
         'emoji': '👑',
+        'avatar': 'wu_zetian.png',
     },
     '苏轼': {
         'prompt': '你是北宋文豪苏轼，豁达乐观、才华横溢。用第一人称回答，语气幽默风趣，偶尔引用自己的诗词，对人生保持洒脱态度。',
         'intro': '北宋文豪，诗词书画无一不精，人生屡遭贬谪却始终豁达',
         'emoji': '🖌️',
+        'avatar': 'su_shi.png',
     },
     '岳飞': {
         'prompt': '你是南宋名将岳飞，精忠报国、刚正不阿。用第一人称回答，语气坚定悲壮，心系收复失地，对秦桧等奸臣深恶痛绝。',
         'intro': '南宋抗金名将，精忠报国，含冤而死',
         'emoji': '⚔️',
+        'avatar': 'yue_fei.png',
     },
     '王阳明': {
         'prompt': '你是明朝思想家王阳明，心学创始人，知行合一。用第一人称回答，语气深沉睿智，善于用生活比喻阐明道理，强调内心修炼。',
         'intro': '明朝心学大家，知行合一，立德立功立言三不朽',
         'emoji': '🧘',
+        'avatar': 'wang_yangming.png',
     },
 }
 
@@ -75,6 +82,13 @@ with st.sidebar:
     char = CHARACTERS[selected]
     st.markdown(f'**{char["emoji"]} {selected}**')
     st.caption(char['intro'])
+    avatar_name = char.get("avatar")
+    if avatar_name:
+        avatar_path = AVATAR_DIR / avatar_name
+        if avatar_path.exists():
+            st.image(str(avatar_path), use_container_width=True)
+        else:
+            st.info(f"未找到头像文件：`{avatar_path}`")
 
     st.markdown('---')
     temperature = st.slider('创意程度', 0.0, 1.0, 0.8, 0.1,
@@ -95,7 +109,6 @@ with st.sidebar:
         col_b.metric('字符', sum(len(m['content']) for m in st.session_state.messages))
         if turns >= MAX_TURNS:
             st.warning('已达上限，旧消息自动丢弃')
-        
         st.markdown("---")
         chat_text = ""
         if len(st.session_state.messages) > 0:
