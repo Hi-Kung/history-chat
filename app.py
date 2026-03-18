@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from datetime import datetime
 import streamlit as st
 from openai import OpenAI
 
@@ -152,6 +153,9 @@ if not st.session_state.messages:
 for msg in st.session_state.messages:
     with st.chat_message(msg['role']):
         st.markdown(msg['content'])
+        ts = msg.get("time")
+        if ts:
+            st.caption(ts)
 
 # ── 处理 pending_input（来自提示按钮） ───────────────
 user_input = st.session_state.pending_input
@@ -164,7 +168,11 @@ if chat_input:
 
 if user_input:
     # 显示用户消息
-    st.session_state.messages.append({'role': 'user', 'content': user_input})
+    st.session_state.messages.append({
+        'role': 'user',
+        'content': user_input,
+        'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+    })
     with st.chat_message('user'):
         st.markdown(user_input)
 
@@ -191,5 +199,9 @@ if user_input:
             st.error(reply)
 
     # 保存 AI 回复
-    st.session_state.messages.append({'role': 'assistant', 'content': reply})
+    st.session_state.messages.append({
+        'role': 'assistant',
+        'content': reply,
+        'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+    })
     st.rerun()
